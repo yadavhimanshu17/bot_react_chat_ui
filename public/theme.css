@@ -1,0 +1,45 @@
+/* Dark Mode Support */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f3f4f6;
+    --text-primary: #000000;
+    --border-color: #e5e7eb;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --border-color: #444444;
+}
+
+.chat-container {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.chat-messages {
+    background: var(--bg-secondary);
+}
+
+.message-bubble-user {
+    background: #3b82f6;
+    color: white;
+}
+
+.message-bubble-bot {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.message-bubble-agent {
+    background: #10b981;
+    color: black;
+}
+
+.message-bubble-system {
+    background: #6b7280;
+    color: white;
+}
