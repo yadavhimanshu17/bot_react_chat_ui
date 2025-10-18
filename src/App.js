@@ -1,75 +1,65 @@
-// App.js
-import React, { useState, useEffect } from "react";
-import FloatingChatBot from "./components/FloatingChatBot";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_HTTP || "http://localhost:8000";
+import React, { useState, useEffect } from 'react';
+import ChatWidget from './components/ChatWidget';
+import { fetchClientDetails } from './services/api';
 
-export default function App() {
-  const [validClients, setValidClients] = useState([]);
-  const [clientId, setClientId] = useState("");
-  const [userId, setUserId] = useState("");
-  const [loading, setLoading] = useState(true);
+const App = () => {
+  const [clientConfig, setClientConfig] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch valid webchat clients on load
+  const urlParams = new URLSearchParams(window.location.search);
+  const dynamicClientId = urlParams.get('client_id');
+
   useEffect(() => {
-    const fetchClients = async () => {
+    const loadConfig = async () => {
+      if (!dynamicClientId) {
+        setError("Client ID is missing in the URL.");
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const res = await fetch(`${BACKEND_URL}/channels/webchat/clients`);
-        const data = await res.json();
-        setValidClients(data.webchat_clients || []);
-        if (data.webchat_clients?.length > 0) {
-          setClientId(data.webchat_clients[0]); // auto-select first
+        const data = await fetchClientDetails(dynamicClientId);
+
+        if (data) {
+          setClientConfig(data);
+        } else {
+          setError(`Client ID ${dynamicClientId} not found in DB.`);
         }
       } catch (err) {
-        console.error("Failed to fetch clients:", err);
+        console.error("Configuration fetching failed:", err);
+        setError("Error connecting to configuration server.");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
-    fetchClients();
-  }, []);
 
-  useEffect(() => {
-    if (clientId) {
-      const uid = `${clientId}_web_u${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-      setUserId(uid);
-    }
-  }, [clientId]);
+    loadConfig();
+  }, [dynamicClientId]); // Yeh sirf client ID change hone par chalega
 
-  if (loading) return <div className="p-6">Loading clients...</div>;
+
+  if (isLoading) {
+    return <div style={{ padding: '50px', textAlign: 'center' }}>Loading Client Configuration...</div>;
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '50px', textAlign: 'center', color: 'red', border: '2px solid red', margin: '50px' }}>
+        <h1>Configuration Error</h1>
+        <p>{error}</p>
+        <p>Please ensure the Central Gateway is running and accessible at {process.env.BASE_URL} (if applicable).</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold mb-3">Multi-Client Chatbot</h2>
-
-      <div className="mb-4 flex gap-3 items-center">
-        <label className="font-medium">Client:</label>
-        <select
-          value={clientId}
-          onChange={(e) => setClientId(e.target.value)}
-          className="border px-2 py-1"
-        >
-          <option value="">-- Select Client --</option>
-          {validClients.map(id => (
-            <option key={id} value={id}>{id}</option>
-          ))}
-        </select>
-
-        {clientId && (
-          <>
-            <label className="font-medium">User ID:</label>
-            <input
-              className="border px-2 py-1 bg-gray-100"
-              value={userId}
-              readOnly
-            />
-          </>
-        )}
-      </div>
-
-      {clientId && userId && (
-        <FloatingChatBot clientId={clientId} userId={userId} />
-      )}
+    <div style={{ padding: '20px' }}>
+      <h1>Bot Chat Demo: {clientConfig.client_name}</h1>
+      {/* chatwidget loading */}
+      <ChatWidget clientId={clientConfig.client_id} clientConfig={clientConfig} />
     </div>
   );
-}
+};
+
+export default App;

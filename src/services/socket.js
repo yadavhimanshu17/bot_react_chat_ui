@@ -1,83 +1,64 @@
-const WS_BASE = process.env.REACT_APP_BACKEND_WS || "ws://localhost:8000";
+const WS_BASE_URL = 'wss://852a4e61c008.ngrok-free.app';
 
-export function connectChatSocket(clientId, userId, onMessage, onOpen) {
-    if (!clientId || !userId) {
-        console.error("connectChatSocket: clientId and userId required");
-        return null;
+export class ChatSocket {
+    constructor(clientId, userId, onMessageReceived, onConnectionStatusChange) {
+        this.clientId = clientId;
+        this.userId = userId;
+        this.onMessageReceived = onMessageReceived;
+        this.onConnectionStatusChange = onConnectionStatusChange;
+        this.ws = null;
+        this.url = `${WS_BASE_URL}/ws/chat/${clientId}/${userId}`;
     }
-    const url = `${WS_BASE}/ws/chat/${encodeURIComponent(clientId)}/${encodeURIComponent(userId)}`;
-    const ws = new WebSocket(url);
 
-    ws.onopen = () => { console.log("✅ Chat WebSocket connected", url); onOpen && onOpen(); };
-    ws.onerror = (err) => console.error("⛔ Chat WebSocket error", err);
-    ws.onclose = (ev) => { console.warn("⚠ Chat WebSocket closed", ev?.reason || ev); };
-    ws.onmessage = (ev) => {
-        try {
-            const data = JSON.parse(ev.data);
-            onMessage && onMessage(data);
-        } catch (e) {
-            console.error("Chat socket parse error", e);
-        }
+    connect = () => {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
+
+        this.ws = new WebSocket(this.url);
+        this.onConnectionStatusChange(false);
+
+        this.ws.onopen = () => {
+            this.onConnectionStatusChange(true);
+        };
+
+        this.ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                this.onMessageReceived(data);
+            } catch (e) {
+                console.error("WS: Error parsing message:", e);
+            }
+        };
+
+        this.ws.onclose = () => {
+            this.onConnectionStatusChange(false);
+            setTimeout(this.connect, 5000);
+        };
+
+        this.ws.onerror = (error) => {
+            console.error('WS Error:', error);
+            this.ws.close();
+        };
     };
 
-    return ws;
-}
-
-export function sendChatMessage(ws, text, metadata = {}) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-        console.error("Chat socket not connected");
+    sendMessage = (messageText) => {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            const payload = {
+                message: messageText,
+                metadata: {
+                    user_id: this.userId,
+                    raw_id: this.userId.split(':').pop()
+                }
+            };
+            this.ws.send(JSON.stringify(payload));
+            return true;
+        }
         return false;
-    }
-    ws.send(JSON.stringify({ message: text, metadata }));
-    return true;
-}
+    };
 
-
-
-export function connectLiveAgentSocket(sessionId, onMessage, onOpen) {
-    if (!sessionId) {
-        console.error("connectLiveAgentSocket: sessionId required");
-        return null;
-    }
-    const url = `${WS_BASE.replace(/\/$/, "")}/ws/live_agent/${encodeURIComponent(sessionId)}`;
-    const ws = new WebSocket(url);
-
-    ws.onopen = () => { console.log("✅ LiveAgent WebSocket connected", url); onOpen && onOpen(); };
-    ws.onerror = (err) => console.error("⛔ LiveAgent WebSocket error", err);
-    ws.onclose = (ev) => { console.warn("⚠ LiveAgent WebSocket closed", ev?.reason || ev); };
-    ws.onmessage = (ev) => {
-        try {
-            const data = JSON.parse(ev.data);
-            onMessage && onMessage(data);
-        } catch (e) {
-            console.error("LiveAgent socket parse error", e);
+    disconnect = () => {
+        if (this.ws) {
+            this.ws.close();
+            this.ws = null;
         }
     };
-    return ws;
 }
-
-export function sendAgentMessage(ws, text, metadata = {}) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-        console.error("LiveAgent socket not connected");
-        return false;
-    }
-    ws.send(JSON.stringify({ message: text, metadata }));
-    return true;
-}
-
-export const saveMessageLocally = (clientId, userId, text) => {
-    const key = `offline_msgs_${clientId}_${userId}`;
-    const offline = JSON.parse(localStorage.getItem(key) || "[]");
-    offline.push({ text, timestamp: Date.now() });
-    localStorage.setItem(key, JSON.stringify(offline));
-};
-
-export const getOfflineMessages = (clientId, userId) => {
-    const key = `offline_msgs_${clientId}_${userId}`;
-    return JSON.parse(localStorage.getItem(key) || "[]");
-};
-
-export const clearOfflineMessages = (clientId, userId) => {
-    const key = `offline_msgs_${clientId}_${userId}`;
-    localStorage.removeItem(key);
-};
