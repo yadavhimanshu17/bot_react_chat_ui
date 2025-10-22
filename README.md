@@ -85,4 +85,4 @@ As a Frontend JavaScript (React) project, all dependencies are managed by npm/ya
 ©️ License
 This project is licensed under the MIT License.
 
-Project Maintained by <Your Name/Team Name>. Last Updated: 22-10-2025
+Project Maintained by HIMANSHU YADAV. Last Updated: 22-10-2025
