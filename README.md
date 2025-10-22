@@ -1,45 +1,17 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+📖 Project OverviewThis repository provides the complete Frontend User Interface (UI) for a conversational AI application, built using React.js. It serves as the primary component that end-users interact with, handling all aspects of message rendering, user input, and state management for the chat session.The component is designed to be embeddable and works by communicating with a separate Rasa/Bot Core backend.✨ Key FeaturesResponsive Chat Widget: A collapsible/expandable widget that adapts to all screen sizes.Core Messaging Loop: Handles the sending of user messages and rendering of bot responses.Rich UI Support: Capable of displaying custom message payloads (buttons, cards, etc.) as determined by the backend.Session Management: Handles opening, closing, and restoring user chat sessions.Agent Handoff Logic: Contains the client-side logic and UI to initiate a smooth handover to a Human Live Agent.🛠️ Technology Stack & DependenciesThis project is a modern React application. All runtime and development dependencies are listed in the package.json file.Core TechnologiesCategoryTechnologyPurposeFrontendReact.jsCore UI library for component development.StylingTailwind CSSUtility-first CSS framework for efficient styling and responsive design.Build ToolVite / WebpackModern bundler used for building the final application (Commonly Vite in new React projects).RuntimeNode.jsJavaScript runtime environment.Dependencies (Installed Packages)The following packages are installed via npm install (or yarn install) to build and run the application (as typically found in such a setup):Package NameCategoryDescriptionreact / react-domProductionCore libraries for building and rendering the UI.axios / fetchProductionUsed for making HTTP requests to the Bot Backend API.tailwindcssDevelopmentUtility package for styling and compilation.prop-typesProductionRuntime type checking for React props.<Other project-specific libs>Prod/Deve.g., date-fns, react-icons, etc., depending on the code.⚙️ Setup and InstallationPrerequisitesYou must have Node.js (version 16 or higher) and npm (or yarn) installed on your system.1. Cloning the RepositoryStart by cloning the project and navigating into the directory:Bashgit clone https://github.com/yadavhimanshu17/bot_react_chat_ui.git
+cd bot_react_chat_ui
+2. Install DependenciesInstall all required packages defined in package.json:Bash# Recommended using npm
+npm install
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
+# OR if you prefer yarn
+# yarn install
+3. Environment ConfigurationCreate a file named .env in the root directory to configure the backend connection. This is essential for the UI to know where to send messages.# The primary endpoint for your Rasa/Bot Core (e.g., /webhooks/rest/webhook)
+REACT_APP_BOT_API_URL = <Replace with your Bot Core/Rasa API URL> 
 
-*We recommend that you open this README in another tab as you perform the tasks below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
+# Example:
+# REACT_APP_BOT_API_URL = http://localhost:5005/webhooks/rest/webhook
 
----
-
-## Edit a file
-
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
-
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and you’ll see the change you just made.
-6. Go back to the **Source** page.
-
----
-
-## Create a file
-
-Next, you’ll add a new file to this repository.
-
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
-
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
-
----
-
-## Clone a repository
-
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line, see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
-
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then click **Clone**.
-4. Open the directory you just created to see your repository’s files.
-
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you can [add, commit,](https://confluence.atlassian.com/x/8QhODQ) and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
+# URL for initiating human agent handoff (if applicable)
+REACT_APP_LIVE_AGENT_URL = <Replace with your Live Agent Handoff API URL>
+4. Running the ApplicationExecute the start script to launch the development server:Bashnpm start
+The application will typically open in your browser at http://localhost:3000.🤝 Integration with Backend (Rasa/Bot Core)This UI component is designed to work with any backend that adheres to the messaging standards (like the Rasa Webhook format).Communication: All user input is sent via POST request to the configured REACT_APP_BOT_API_URL.Handoff: The UI will trigger a specific API call or state change when the user requests or is directed to a live agent.🛑 Important Note on requirements.txtSince this is a Frontend JavaScript (React) project, it does not use a requirements.txt file. The dependencies are managed by Node Package Manager (npm) and listed in the package.json file.©️ LicenseThis project is licensed under the MIT License. See the LICENSE file for more details.Project Maintained by <Your Name/Team Name>.Last Updated: 22-10-2025
